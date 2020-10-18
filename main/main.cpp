@@ -5,6 +5,7 @@
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
+#include <string.h>
 using namespace std;
 //using namespace SimpleTable;
 

@@ -5,8 +5,7 @@ include_directories(SimpleTable)
 aux_source_directory(SimpleTable SOURCES)
 add_library(
 	libtable
-	${SOURCES}
-)
+	${SOURCES})
 
 add_subdirectory(main)
 add_subdirectory(test)

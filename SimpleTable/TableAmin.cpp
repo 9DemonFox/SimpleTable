@@ -1,5 +1,5 @@
 #include "TableAmin.h"
-
+#include "RowAmin.h"
 
 namespace SimpleTable{
 
@@ -50,19 +50,19 @@ namespace SimpleTable{
 
 	}
 
-	int TableAmin::IAppendOneRow(const char* tableName,Row row) {
-		FILE *file=fopen(tableName,"a+");//原来的EOF保留
-		if (ftell(file) == EOF) {
+	//int TableAmin::IAppendOneRow(const char* tableName,RowAmin row) {
+	//	FILE *file=fopen(tableName,"a+");//原来的EOF保留
+	//	if (ftell(file) == EOF) {
 
-		}
-		string s = to_string(row.rowId);
-		int len = s.length();
-		int i = 0;
+	//	}
+	//	string s = to_string(row.rowId_);
+	//	int len = s.length();
+	//	int i = 0;
 
-		for (int i = 0;i < 8;i++) {
-			
-		}
-		return 1;
-	}
+	//	for (int i = 0;i < 8;i++) {
+	//		
+	//	}
+	//	return 1;
+	//}
 }
 
