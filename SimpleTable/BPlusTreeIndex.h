@@ -3,20 +3,20 @@
 
 namespace SimpleTable {
 
-	class BPlusTreeIndex : public IIndex
-	{
-	public:
-		BPlusTreeIndex() {
+	//class BPlusTreeIndex : public IIndex
+	//{
+	//public:
+	//	BPlusTreeIndex() {
 
-		}
+	//	}
 
-		int ICreatIndex(const char* tablename, const char* indexname, const int columnIndex);
-	
-	public:
-		int CreateIndexOnString() {
+	//	int ICreatIndex(const char* tablename, const char* indexname, const int columnIndex);
+	//
+	//public:
+	//	int CreateIndexOnString() {
 
-		}
+	//	}
 
-	};
+	//};
 
 }

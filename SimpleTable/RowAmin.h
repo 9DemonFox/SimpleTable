@@ -2,8 +2,9 @@
 
 #include "ISimpleTable.h"
 namespace SimpleTable {
-	class RowAmin:IRow{
+	class RowAmin :IRow { // Ëæ»úÐÐ
 	public:
-		RowAmin(int rowId):IRow(rowId) {};
+		RowAmin(int rowId,int max_Byte):IRow(rowId,max_Byte) {
+		};
 	};
 }

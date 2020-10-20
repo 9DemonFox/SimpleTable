@@ -1,71 +1,155 @@
 #pragma once
 #include <string>
 #include <fcntl.h>
-#pragma once
 #include <assert.h>
 #include <stdio.h>
 #include <sstream>
 #include <vector>
 #include <map>
 #include <utility>
+#include <iostream>
+#include "ISimpleTable.h"
+#include "Util.h"
 using namespace std;
 
 namespace SimpleTable {
 
-	struct IRow {
+	class IRow {
 	public:
-		IRow(int rowId) :rowId_(rowId) {};
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="rowId">行号</param>
+		/// <param name="maxIndex_">列的数目</param>
+		IRow(int rowId, int maxIndex_);
 	public:
-		enum class columnType// 列支持T_INT 和 T_STRING
-		{
-			T_NULL,
-			T_INT,
-			T_STRING,
-		};
-		int setAttrOfIndex(int index, columnType type, string content);
-		pair<columnType, string> getAttrOfIndex(int index);
 
-	public:
+		/// <summary>
+		/// 如果插入一个值 返回1
+		/// 如果是更新一个值 返回0
+		/// redis 是这样
+		/// </summary>
+		/// <param name="index"></param>
+		/// <param name="content"></param>
+		/// <returns></returns>
+		int setAttrOfIndex(int index, string content);
+
+		/// <summary>
+		/// 返回相应的属性
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		string getAttrOfIndex(int index);
+
+		/// <summary>
+		/// 获取rowId
+		/// </summary>
+		/// <returns></returns>
+		int rowId() { return rowId_; }
+
+		/// <summary>
+		/// 获取最多有多少列
+		/// </summary>
+		/// <returns></returns>
+		int maxIndex() { return maxIndex_; }
+
+		string dataToString();
+
+		void printData();
+	protected:
+		map<int, string> data_;
 		int rowId_;
-	private:
-		map<int, pair<columnType, string>> classMap;
+		int maxIndex_;
 		// 列号 <类型 值>
 	};
 
-	class Table {
+	/// <summary>
+	/// 列信息，包含两行 一行存储列名，一行存储数据类型
+	/// 列名
+	/// 列的类别：int or string TODO 支持其它类别
+	/// </summary>
+	class IColumnInfo {
 	public:
-		Table() {};
-		vector <IRow> Rows;
-		string tableName_;
+		IColumnInfo(int maxColumn) {
+			columnType_ = new IRow(0, maxColumn);
+			columnName_ = new IRow(1, maxColumn);
+			for (int cET = columnTypeEnum::begin_ + 1; cET < columnTypeEnum::end_; cET++) {
+				switch (cET)
+				{
+				case T_INT:
+					typeMap[T_INT] = "int";
+					break;
+				case T_STRING:
+					typeMap[T_STRING] = "string";
+					break;
+				default:
+					break;
+				}
+			}
+		};
+		static enum columnTypeEnum// 列支持T_INT 和 T_STRING
+		{
+			begin_ = 0,
+			T_INT,
+			T_STRING,
+			end_
+		};
+		/// <summary>
+		/// 课程要求
+		/// </summary>
+		void setSerialColumnNanmeAndRanomType(int maxColumn, int maxByte);
+	public:
+		/// <summary>
+		/// 存储列名
+		/// </summary>
+		IRow* columnName_;
+
+		/// <summary>
+		/// 存储列的类型
+		/// </summary>
+		IRow* columnType_;
+
+		/// <summary>
+		/// 类型名到它的存储名
+		/// </summary>
+		map<columnTypeEnum, string> typeMap;
 	};
 
 	class ISimpleTable
 	{
 	public:
-		ISimpleTable() :rowNum_(0) { // 0行
-
+		ISimpleTable() :rowNum_(0) {
+			columnInfo_ = new IColumnInfo(maxColumn_); // 设置列信息
 		}
+		/// <summary>
+		/// 创建表格
+		/// </summary>
+		/// <param name="tablename">表名</param>
+		/// <param name="columnInfo">列信息</param>
+		/// <returns></returns>
 		virtual int ICreateTable(const char* tablename) = 0;
 		virtual int IDeleteTable(const char* tablename) = 0;
+		virtual int IAppendOneRow(const char* tableName, IRow row) = 0;// return whitch line insered to, -1 失败
+		//virtual int ISearchRow(const bool useIndex) = 0; // 1成功 -1失败 
+		virtual int ISetColumnInfo() = 0;
+		virtual IRow getOneRowByColumn(const char* tableName, int columnIndex, string value) = 0;
 
-		//virtual int IAppendOneRow(const char* tableName, IRow row) = 0;// return whitch line insered to, -1 失败
-		//virtual int ISearchRow(const bool useIndex) = 0; // 1成功 -1失败
-
+		char seprator() {
+			return seprator_;
+		}
 		//virtual int IAddIndex() = 0; // 1 成功 -1 失败
 		//virtual int IDeleteIndex(const string indexName) = 0;// 1成功
 		//virtual int IGetAllIndex() = 0;
-	private:
-		vector <IRow> Rows;
+	protected:
+		IColumnInfo* columnInfo_;
+		vector <IRow> rows_;
 		int rowNum_;
 		string tableName_;
-	};
-
-	class IIndex {
-	public:
-		IIndex() {
-
-		}
-		virtual int ICreatIndex(const char* tablename, const char* indexname, const int columnIndex) = 0;
+		static const char seprator_ = '|';
+		static const int maxByte_ = 8;
+		static const int maxColumn_ = 100;
+		static const int info_row_num_ = 2;// 存放信息的列
+		static const int byteOfOneRow_ = (maxByte_ + 1) * maxColumn_ + 1;// 分割符+换行符
 	};
 }
 

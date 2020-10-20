@@ -6,6 +6,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
+#include <map>
 using namespace std;
 //using namespace SimpleTable;
 
@@ -236,7 +237,11 @@ int main()
 	//char *attr=(char*)malloc(sizeof(char)*(MAX_BYTES+1));
 
 	//cout<<attr;
-
+	map<int, string>data;
+	data[0] = "0";
+	string a = data[1];
+	cout << "data[0]=" << data[1];
+	
 
 	while (true)
 	{
