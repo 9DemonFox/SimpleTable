@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <map>
+//#define DEBUG
 using namespace std;
 //using namespace SimpleTable;
 
@@ -97,7 +98,9 @@ int main()
 					strncat(rand_row, "|", 1);
 				}
 				strncat(rand_row, "\n", 1);
+#ifdef DEBUG
 				cout << rand_row;
+#endif // DEBUG
 			}
 			else {
 				throw("ÄÚ´æ·ÖÅäÊ§°Ü");
@@ -178,7 +181,9 @@ int main()
 				iter++;
 			}
 			column_string += "\n";
+#ifdef DEBUG
 			cout << column_string;
+#endif // DEBUG
 			return 1;
 		}
 

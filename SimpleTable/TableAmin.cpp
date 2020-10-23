@@ -1,6 +1,8 @@
 #include "TableAmin.h"
 #include "RowAmin.h"
-
+#include <errno.h>
+//#define DEBUG
+#define pr(x) cout<<#x<<" = "<<x<<endl
 namespace SimpleTable { // 为了顺序访问的需要
 
 
@@ -38,7 +40,6 @@ namespace SimpleTable { // 为了顺序访问的需要
 		}
 	}
 
-
 	int TableAmin::IDeleteTable(const char* tablename) {
 		try
 		{
@@ -64,43 +65,65 @@ namespace SimpleTable { // 为了顺序访问的需要
 	/// <returns></returns>
 	int TableAmin::ISetColumnInfo()
 	{
-		this->columnInfo_->setSerialColumnNanmeAndRanomType(maxColumn_, maxByte_);
+		this->columnInfo_->setSerialColumnNameAndRanomType(maxColumn_, maxByte_);
 		return 1;
 	}
 
 	int TableAmin::IAppendOneRow(const char* tableName, IRow row) {
-		FILE* file = fopen(tableName, "a+");//原来的EOF保留
+		FILE* file = fopen(tableName, "a+");
+		int file_position = fseek(file, 0, SEEK_END);
 		// TODO 线程安全
-		fseek(file, 0, SEEK_END);
-		return fputs(row.dataToString().c_str(), file);
+#ifdef  DEBUG
+		pr(file_position);
+#endif //  DEBUG
+		string s = Utils::paddingToNByteString(row.dataToString(), byteOfOneRow_, Utils::POSITION::back); // '\0'
+#ifdef DEBUG
+		const char* buf = s.c_str();
+#endif // DEBUG
+		fputs(s.c_str(), file);
+		fclose(file);
+		return 1;
 	}
 
-	string TableAmin::IGetOneRowByIndex(const char* tableName, int index)
+	string TableAmin::IGetOneRowStringByRowID(const char* tableName, int rowID)
 	{
-		return string();
-	}
+		if (rowID <= 0)
+		{
+			throw "rowID must over than 0";
+		}
 
-	IRow TableAmin::getOneRowByColumn(const char* tableName,int columnIndex, string value)
-	{
 		FILE* file;
 		file = fopen(tableName, "r");// 判断文件是否存在 只读方式打开
 		int lineCount = 0;
 		int maxByte = 0;
+		fseek(file, info_size_, SEEK_SET);
 		if (file != NULL) {
-			while (fgetc(file) != '\n') {
-				lineCount++;
+			if (fgetc(file) == EOF) { // 没有文件信息
+				return "";
 			}
-			fseek(file, 0, SEEK_SET);
-			while (fgetc(file) != seprator_) { // 第一个分隔符为最大长度
-				maxByte++;
+			else {
+				fseek(file, -1, SEEK_CUR); // fgetc() 移动了一步，回退
+
+				fseek(file, byteOfOneRow_ * (rowID - 1), SEEK_CUR);
+#ifdef DEBUG
+				cout << "position:" << ftell(file);
+#endif // DEBUG
+
+				if (char* buffer = (char*)malloc(sizeof(char) * byteOfOneRow_)) {
+					fgets(buffer, byteOfOneRow_, file);
+					fclose(file);
+					return buffer;
+				}
 			}
-			lineCount++;// 换行符
-			cout << "lineCount: " << lineCount << endl;
-			cout << "maxByte; " << maxByte << endl;
 		}
 		else {
 			throw "table not exist";
 		}
+
+	}
+
+	IRow TableAmin::getOneRowByRowID(const char* tableName, int rowID, string value)
+	{
 		return IRow(1, 100);
 	}
 

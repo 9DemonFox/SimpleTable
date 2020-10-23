@@ -22,7 +22,7 @@ namespace SimpleTable {
 		/// <param name="row"></param>
 		/// <returns></returns>
 		int IAppendOneRow(const char* tablename,IRow row);
-		string IGetOneRowByIndex(const char* tableName,int index);
-		IRow getOneRowByColumn(const char* tableName, int columnIndex, string value);
+		string IGetOneRowStringByRowID(const char* tableName, int rowID);
+		IRow getOneRowByRowID(const char* tableName, int rowID, string value);
 	};
 }

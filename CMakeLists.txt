@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(SimpleTable VERSION 1.0.0)
-add_definitions(-std=c++11)
+add_definitions(-std=c++11 -pthread)
 include_directories(SimpleTable)
 aux_source_directory(SimpleTable SOURCES)
 add_library(

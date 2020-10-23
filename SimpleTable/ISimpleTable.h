@@ -10,6 +10,7 @@
 #include <iostream>
 #include "ISimpleTable.h"
 #include "Util.h"
+#define DEBUG
 using namespace std;
 
 namespace SimpleTable {
@@ -55,6 +56,14 @@ namespace SimpleTable {
 
 		string dataToString();
 
+		/// <summary>
+		/// 将s信息存入data,按照分隔符
+		/// </summary>
+		/// <param name="seprator"></param>
+		/// <param name="s"></param>
+		/// <returns></returns>
+		int setDataFromString(char seprator, string s);
+
 		void printData();
 	protected:
 		map<int, string> data_;
@@ -87,7 +96,7 @@ namespace SimpleTable {
 				}
 			}
 		};
-		static enum columnTypeEnum// 列支持T_INT 和 T_STRING
+		enum columnTypeEnum// 列支持T_INT 和 T_STRING
 		{
 			begin_ = 0,
 			T_INT,
@@ -97,7 +106,7 @@ namespace SimpleTable {
 		/// <summary>
 		/// 课程要求
 		/// </summary>
-		void setSerialColumnNanmeAndRanomType(int maxColumn, int maxByte);
+		void setSerialColumnNameAndRanomType(int maxColumn, int maxByte);
 	public:
 		/// <summary>
 		/// 存储列名
@@ -113,7 +122,9 @@ namespace SimpleTable {
 		/// 类型名到它的存储名
 		/// </summary>
 		map<columnTypeEnum, string> typeMap;
+
 	};
+
 
 	class ISimpleTable
 	{
@@ -130,10 +141,14 @@ namespace SimpleTable {
 		virtual int ICreateTable(const char* tablename) = 0;
 		virtual int IDeleteTable(const char* tablename) = 0;
 		virtual int IAppendOneRow(const char* tableName, IRow row) = 0;// return whitch line insered to, -1 失败
+		virtual string IGetOneRowStringByRowID(const char* tableName, int rowID) = 0;
 		//virtual int ISearchRow(const bool useIndex) = 0; // 1成功 -1失败 
-		virtual int ISetColumnInfo() = 0;
-		virtual IRow getOneRowByColumn(const char* tableName, int columnIndex, string value) = 0;
-
+		//virtual int ISetColumnInfo() = 0;
+		virtual IRow getOneRowByRowID(const char* tableName, int rowID, string value) = 0;
+		/// <summary>
+		/// 加载列信息
+		/// </summary>
+		//virtual void ILoadColumnInfo() = 0;
 		char seprator() {
 			return seprator_;
 		}
@@ -149,7 +164,8 @@ namespace SimpleTable {
 		static const int maxByte_ = 8;
 		static const int maxColumn_ = 100;
 		static const int info_row_num_ = 2;// 存放信息的列
-		static const int byteOfOneRow_ = (maxByte_ + 1) * maxColumn_ + 1;// 分割符+换行符
+		static const int byteOfOneRow_ = (maxByte_ + 1) * maxColumn_ + 1;// 分割符+换行符+终止符
+		static const int info_size_ = info_row_num_ * byteOfOneRow_; // 存储文件信息的行
 	};
 }
 
