@@ -5,11 +5,14 @@
 #include "ISimpleTable.h"
 #include <thread>
 #include "fileHelper.h"
+#include <cstring>
+#include "serialization.h"
 //#define DEBUG
 #define p(x) cout<<#x<<":"<<x<<endl
 #include <mutex>
 
 using namespace SimpleTable;
+using namespace stl_serialization;
 
 const char* DATA_PATH_DIR = "data/";
 const char* DATA_NAME = "test.db";
@@ -46,9 +49,35 @@ TEST_CASE("TableAmin", "[single-file]") {
 	isimpletable->IAppendOneRow(DATA_FULL_PATH, *r2);
 	s1 = isimpletable->IGetOneRowStringByRowID(DATA_FULL_PATH, 2);
 	REQUIRE(s0 == s1);
+
+	//
+	isimpletable->IDeleteTable(DATA_FULL_PATH);
+	REQUIRE(isimpletable->ICreateTable(DATA_FULL_PATH) == 1);// 创建成功
+	for (int k = 0; k < 1000; k++) {
+		IRow* r_temp = new IRow(k + 1, 8);
+		for (int i = 1; i < 8; i++) {
+			r_temp->setAttrOfIndex(i, Utils::getRandomNByteString(8));
+		}
+		isimpletable->IAppendOneRow(DATA_FULL_PATH, *r_temp);
+	}
 #ifdef DEBUG
 	p(s1);
 #endif
+}
+
+// 测试索引
+TEST_CASE("IndexAmin", "[single-file]") {
+	string indexTestFile = "testIndexTestFile.db";
+	if (Utils::existsFile(indexTestFile))remove(indexTestFile.c_str());
+	ISimpleTable* isimpletable = new TableAmin();
+	REQUIRE(isimpletable->ICreateTable(indexTestFile.c_str()) == 1);// 创建成功
+	for (int k = 0; k < 1000; k++) {
+		IRow* r_temp = new IRow(k + 1, 8);
+		for (int i = 1; i < 8; i++) {
+			r_temp->setAttrOfIndex(i, Utils::getRandomNByteString(8));
+		}
+		isimpletable->IAppendOneRow(DATA_FULL_PATH, *r_temp);
+	} // 创建1000行表
 }
 
 TEST_CASE("IRow RowAmin", "[single-file]") {
@@ -73,7 +102,7 @@ TEST_CASE("IRow RowAmin", "[single-file]") {
 #ifdef DEBUG
 	r3->printData();
 #endif // DEBUG
-}
+	}
 
 TEST_CASE("IColumnInfo", "[single-file]") {
 	IColumnInfo* iColumnInfo = new IColumnInfo(100);
@@ -100,27 +129,63 @@ TEST_CASE("Util", "[single-file]") {
 	REQUIRE(Utils::paddingToNByteString("col_1", 8, Utils::POSITION::front) == "   col_1");
 
 	REQUIRE(Utils::paddingToNByteString("abc", 8, Utils::POSITION::back) == "abc     ");
+
+	string test_existsFile = "test_existsFile";
+	REQUIRE(Utils::existsFile(test_existsFile) == false);
+	fopen(test_existsFile.c_str(), "w+");
+	REQUIRE(Utils::existsFile(test_existsFile) == true);
+	remove(test_existsFile.c_str());
 }
 
-TEST_CASE("FileHelper", "[single - file]") {
-	//vector<thread> threads;
-	//remove("testThreads.txt");
+// 测试序列化
+TEST_CASE("Serialization", "[single-file]") {
+	int _size = 10;
+	std::ostringstream _ost;
+	MapSerialization<int, vector<int>> ms_src;
+	int t;
+	for (int i = 0; i < _size; i++) { // 构造数据 每个key 对应 key个元素的vector
+		vector<int> temp;
+		for (t = 0; t <= i; t++) {
+			temp.push_back(t);
+		}
+		ms_src[i] = temp;
+	}
+	ms_src.serialization(_ost, "test_serialization.bin"); //  oa  << _ost
+	MapSerialization<int, vector<int>> ms_des;
+	std::istringstream ist(_ost.str());// initial from _ost
+	// ms_des.unserialization(ist);
+	ms_des.unserialization("test_serialization.bin");
+	REQUIRE(ms_src == ms_des);
+	for (std::map<int, vector<int>>::iterator it = ms_des.begin(); it != ms_des.end(); it++)
+	{
+		int k = it->first;
+		for (int k = 0; k <= it->first; k++)
+		{
+			cout << it->second[k] << endl;
+		}
+	}
+}
+// 测试多线程
+TEST_CASE("threads", "[single - file]") {
+	vector<thread> threads;
+	const char* filePath = "testThreads.txt";
+	remove(filePath);
+	mutex mtx;
+	int i = 0;
+	thread p1 = thread(FileHelper::writeFile, &mtx, &i, filePath, 1);
+	thread p2 = thread(FileHelper::writeFile, &mtx, &i, filePath, 2);
+	p1.join();
+	p2.join();
+	FILE* file = fopen("testThreads.txt", "r");
+	char* buff = (char*)malloc(sizeof(char) * 64);
+	fgets(buff, 100, file);
+	cout << "file:" << buff << endl;
+	REQUIRE(strcmp(buff, "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnop") == 0);
 
-	//FILE* file = fopen("testThreads.txt", "w");
-	//fclose(file);
-	//mutex mtx;
-	//int i = 0;
-	//thread p1 = thread(FileHelper::writeFile, &mtx, &i,1);
-	//thread p2 = thread(FileHelper::writeFile, &mtx, &i,2);
-	//p1.join();
-	//p2.join();
-	//file = fopen("testThreads.txt", "r");
-	//char* buff = (char*)malloc(sizeof(char) * 100);
-	//fgets(buff, 100, file);
-	//cout << "file:" << buff << endl;
+}
 
+TEST_CASE("FileHandler", "single-file") {
+	int i = 100;
 	FileHandler fileHandler = FileHandler::getInstance();
-	int i = 5;
 	fileHandler.printNum(&i);
-
 }

@@ -1,13 +1,13 @@
 #include "fileHelper.h"
 using namespace std;
 
-void FileHelper::writeFile(mutex* mtx, int* i, int thread_id)
+void FileHelper::writeFile(mutex* mtx, int* i, const char* filePath, int thread_id)
 {
 	while (true) {
 		mtx->lock();
-		FILE* file = fopen("testThreads.txt", "a+");
+		FILE* file = fopen(filePath, "a+");
 		fseek(file, *i, SEEK_END);
-		if (*i > 90) {
+		if (*i > 64) {
 			mtx->unlock();
 			return;
 		}
@@ -21,3 +21,8 @@ void FileHelper::writeFile(mutex* mtx, int* i, int thread_id)
 	}
 }
 
+
+// 静态类的静态成员必须在类外进行初始化
+FileHandler* FileHandler::fileHandler_ = NULL;
+mutex FileHandler::mtx;
+mutex FileHandler::mtxForConstructSelf_;

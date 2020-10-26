@@ -4,7 +4,6 @@ using namespace SimpleTable;
 
 SimpleTable::IRow::IRow(int rowId, int maxIndex)
 {
-	assert(rowId <= maxIndex);
 	this->rowId_ = rowId;
 	this->maxIndex_ = maxIndex;
 	this->setAttrOfIndex(0, to_string(rowId_));

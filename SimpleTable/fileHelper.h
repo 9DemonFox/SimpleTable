@@ -8,8 +8,7 @@
 using namespace std;
 class FileHelper {
 public:
-	//mutex* mtx = new mutex();
-	static void writeFile(mutex* mtx, int* i, int thread_id);
+	static void writeFile(mutex* mtx, int* i,const char* filePath ,int thread_id);
 };
 
 // µ¥ÀýÄ£Ê½ Singleton
@@ -31,13 +30,8 @@ public:
 		return *fileHandler_;
 	}
 
-
 	 void printNum(int* i) {
 		cout << *i << endl;
 	}
 };
-
-FileHandler* FileHandler::fileHandler_ = NULL;
-mutex FileHandler::mtx;
-mutex FileHandler::mtxForConstructSelf_;
 #endif 

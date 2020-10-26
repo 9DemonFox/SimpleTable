@@ -1,5 +1,8 @@
 #include "Util.h"
 #include <math.h>
+#include <fstream>
+#include <sys/stat.h>
+
 /// <summary>
 /// 将数字返回字符串 ， 如果位数>n,返回空
 /// </summary>
@@ -71,5 +74,11 @@ string Utils::paddingToNByteString(string s, int maxByte, POSITION pos)
 		}
 
 	}
+}
+
+bool Utils::existsFile(const string file)
+{
+	struct stat buffer;
+	return (stat(file.c_str(), &buffer) == 0);
 }
 

@@ -10,7 +10,7 @@
 #include <iostream>
 #include "ISimpleTable.h"
 #include "Util.h"
-#define DEBUG
+//#define DEBUG
 using namespace std;
 
 namespace SimpleTable {
@@ -126,6 +126,7 @@ namespace SimpleTable {
 	};
 
 
+
 	class ISimpleTable
 	{
 	public:
@@ -167,6 +168,55 @@ namespace SimpleTable {
 		static const int byteOfOneRow_ = (maxByte_ + 1) * maxColumn_ + 1;// 分割符+换行符+终止符
 		static const int info_size_ = info_row_num_ * byteOfOneRow_; // 存储文件信息的行
 	};
+
+	/// <summary>
+	/// index 接口
+	/// </summary>
+	template <class T>
+	class IIndex {
+	public:
+
+		/// <summary>
+		/// 判断是否有该表该列的索引
+		/// </summary>
+		/// <returns></returns>
+		virtual bool IHasIndex(string tableName, string tableIndex) = 0;
+
+	//	/// <summary>
+	//	/// 判断索引是否是最新
+	//	/// </summary>
+	//	/// <returns></returns>
+	//	virtual bool IIsUpToDate() = 0;
+
+	//	/// <summary>
+	//	/// 创建索引
+	//	/// </summary>
+	//	/// <param name="tableName"></param>
+	//	/// <param name="colName"></param>
+	//	/// <returns></returns>
+	//	virtual bool ICreatIndex(string tableName, string colName) = 0;
+
+	//	/// <summary>
+	//	/// 更新索引
+	//	/// </summary>
+	//	/// <param name="tableName"></param>
+	//	/// <param name="colName"></param>
+	//	/// <returns></returns>
+	//	virtual bool IUpDateIndex(string tableName, string colName) = 0;
+
+		/// <summary>
+		/// 获取索引
+		/// </summary>
+		/// <returns></returns>
+		virtual T IGetIndex();
+	};
+
+	template<class T>
+	inline T IIndex<T>::IGetIndex()
+	{
+		return T();
+	}
+
 }
 
 
