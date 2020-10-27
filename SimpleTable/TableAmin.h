@@ -4,6 +4,7 @@
 #include<iostream>
 #include<stdio.h>
 #include<vector>
+#include"fileHelper.h"
 namespace SimpleTable {
 	class TableAmin :public ISimpleTable
 	{
@@ -25,6 +26,7 @@ namespace SimpleTable {
 		string IGetOneRowStringByRowID(const char* tableName, int rowID);
 		IRow getOneRowByRowID(const char* tableName, int rowID, string value);
 		vector<IRow> IGetAllRows(const char* tableName);
+		RowsWithInfo IGetProjectedRows(const char* tableName, vector<string> columnName,FileHandler& fileHandler);
 
 	};
 }

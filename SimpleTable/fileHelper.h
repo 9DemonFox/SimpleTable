@@ -8,13 +8,14 @@
 using namespace std;
 class FileHelper {
 public:
-	static void writeFile(mutex* mtx, int* i,const char* filePath ,int thread_id);
+	static void writeFile(mutex* mtx, int* i, const char* filePath, int thread_id);
 };
 
 // 单例模式 Singleton
 class FileHandler {
 private:
 	FileHandler() {}
+	FileHandler(const FileHandler& fileHandler) {}
 	static mutex mtxForConstructSelf_;
 	static mutex mtx;
 	static FileHandler* fileHandler_;
@@ -29,9 +30,19 @@ public:
 		}
 		return *fileHandler_;
 	}
-
-	 void printNum(int* i) {
-		cout << *i << endl;
+	/// <summary>
+	/// 从文件获取数据到buffer，需要线程安全
+	/// </summary>
+	/// <param name="file"></param>
+	/// <param name="buffer"></param>
+	/// <returns></returns>
+	int getOneRow(FILE* file, char* buffer) {
+		if (fgetc(file) == EOF)return 0;
+		else {
+			fseek(file, -1, SEEK_CUR);
+			fgets(file, sizeof(buffer), buffer);
+			return 1;
+		}
 	}
 };
 #endif 

@@ -23,6 +23,7 @@ namespace SimpleTable {
 		/// <param name="rowId">行号</param>
 		/// <param name="maxIndex_">列的数目</param>
 		IRow(int rowId, int maxIndex_);
+		IRow() {};
 	public:
 
 		/// <summary>
@@ -65,8 +66,9 @@ namespace SimpleTable {
 		int setDataFromString(char seprator, string s);
 
 		void printData();
-	protected:
+
 		map<int, string> data_;
+	protected:
 		int rowId_;
 		int maxIndex_;
 		// 列号 <类型 值>
@@ -125,7 +127,17 @@ namespace SimpleTable {
 
 	};
 
-
+	/// <summary>
+/// 在过滤、筛选等操作时会有这样的数据产生
+/// </summary>
+	class RowsWithInfo {
+	public:
+		RowsWithInfo(int maxColumn) {
+			col_info_(maxColumn);
+		}
+		IColumnInfo col_info_;
+		vector<IRow> rows_;
+	};
 
 	class ISimpleTable
 	{
@@ -134,13 +146,7 @@ namespace SimpleTable {
 			columnInfo_ = new IColumnInfo(maxColumn_); // 设置列信息
 		}
 
-		/// <summary>
-		/// 在过滤、筛选等操作时会有这样的数据产生
-		/// </summary>
-		struct RowsWithInfo {
-			IColumnInfo col_info_;
-			vector<IRow> rows_;
-		};
+
 
 		/// <summary>
 		/// 创建表格
@@ -157,19 +163,34 @@ namespace SimpleTable {
 
 		virtual IRow getOneRowByRowID(const char* tableName, int rowID, string value) = 0;
 
-		virtual vector<IRow> IGetAllRows(const char* tableName) = 0;
+		//virtual vector<IRow> IGetAllRows(const char* tableName) = 0;
+
+		///// <summary>
+		///// 从文件中筛选行、列
+		///// </summary>
+		///// <param name="tableName"></param>
+		///// <returns></returns>
+		//virtual RowsWithInfo IGetProjectedRows(const char* tableName, vector<int> row_id, vector<string> columnName) = 0;
+
+		/// <summary>
+		/// 重载，没有row_id，那么获取所有行的某列
+		/// </summary>
+		/// <param name="tableName"></param>
+		/// <param name="columnName"></param>
+		/// <returns></returns>
+		//virtual RowsWithInfo IGetProjectedRows(const char* tableName, vector<string> columnName) = 0;
 
 		/// <summary>
 		/// 按照行条件筛选
 		/// </summary>
 		/// <returns></returns>
-		virtual RowsWithInfo IGetProjectedRows(RowsWithInfo rowsWithInfo) = 0;
+		//virtual RowsWithInfo IGetProjectedRows(RowsWithInfo rowsWithInfo) = 0;
 		/// <summary>
 		/// 对列条件过滤，选取某些列
 		/// </summary>
 		/// <param name="rows"></param>
 		/// <returns></returns>
-		virtual RowsWithInfo IGetProjectedColumns(vector<IRow> rows) = 0;
+		//virtual RowsWithInfo IGetProjectedColumns(vector<IRow> rows) = 0;
 		/// <summary>
 		/// 加载列信息
 		/// </summary>

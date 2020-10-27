@@ -1,6 +1,7 @@
 #include "TableAmin.h"
 #include "RowAmin.h"
 #include <errno.h>
+#include <algorithm>
 //#define DEBUG
 #define pr(x) cout<<#x<<" = "<<x<<endl
 namespace SimpleTable { // 为了顺序访问的需要
@@ -144,5 +145,53 @@ namespace SimpleTable { // 为了顺序访问的需要
 		}
 		return rows;
 	}
+
+	/// <summary>
+	/// 必须包含第0列，行号，设计缺陷
+	/// </summary>
+	/// <param name="tableName"></param>
+	/// <param name="columnName"></param>
+	/// <param name="fileHandler"></param>
+	/// <returns></returns>
+	RowsWithInfo TableAmin::IGetProjectedRows(const char* tableName, vector<string> columnName, FileHandler& fileHandler)
+	{
+		// 选出column所在列的列号
+		auto columnInfo = new IColumnInfo();
+		FILE* file;
+		file = fopen(tableName, "r");// 判断文件是否存在 只读方式打开
+		int lineCount = 0;
+		int maxByte = 0;
+		fseek(file, info_size_, SEEK_SET);
+		if (file != NULL) {
+			if (char* buffer = (char*)malloc(sizeof(char) * byteOfOneRow_)) {
+				IColumnInfo* colInfo = new IColumnInfo(this->maxColumn_);
+				if (fileHandler.getOneRow(file, buffer) == 1) {
+					colInfo->columnType_->setDataFromString(buffer);
+				}
+				if (fileHandler.getOneRow(file, buffer) == 1) {
+					colInfo->columnName_->setDataFromString(buffer);
+				}
+				int rowId = 0;
+				RowsWithInfo* rowWithInfo = new RowsWithInfo(columnName.size());
+				vector<int> indexs;
+				for each (var name in *colInfo->columnName_)
+				{
+					var it = find(columnName.begin(), columnName.end(), name);
+					it == columnName.end() ? continue : ;
+				}
+				while (fileHandler.getOneRow(file, buffer) == 1) {
+
+				}
+			}
+
+		}
+		else {
+			throw "table not exist";
+		}
+
+		return RowsWithInfo();
+		return RowsWithInfo();
+	}
+
 
 }
