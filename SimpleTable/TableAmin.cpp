@@ -127,4 +127,22 @@ namespace SimpleTable { // 为了顺序访问的需要
 		return IRow(1, 100);
 	}
 
+	/// <summary>
+	/// 获取所有行
+	/// </summary>
+	/// <param name="tableName"></param>
+	/// <returns></returns>
+	vector<IRow> TableAmin::IGetAllRows(const char* tableName)
+	{
+		// 计算所有行数
+		vector<IRow> rows;
+		FILE* file = fopen(tableName);
+		fseek(file, 0, SEEK_END);
+		int rowNum = ftell(file) / byteOfOneRow_ - info_row_num_; // 总行数 = 文件大小/每行大小 - 列信息行树;
+		for (int i = 1;i <= rowNum;i++) {
+			rows.push_back(IGetOneRowStringByRowID(i));
+		}
+		return rows;
+	}
+
 }

@@ -21,8 +21,10 @@ namespace SimpleTable {
 		/// <param name="tablename"></param>
 		/// <param name="row"></param>
 		/// <returns></returns>
-		int IAppendOneRow(const char* tablename,IRow row);
+		int IAppendOneRow(const char* tablename, IRow row);
 		string IGetOneRowStringByRowID(const char* tableName, int rowID);
 		IRow getOneRowByRowID(const char* tableName, int rowID, string value);
+		vector<IRow> IGetAllRows(const char* tableName);
+
 	};
 }

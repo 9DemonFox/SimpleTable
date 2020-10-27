@@ -133,6 +133,15 @@ namespace SimpleTable {
 		ISimpleTable() :rowNum_(0) {
 			columnInfo_ = new IColumnInfo(maxColumn_); // 设置列信息
 		}
+
+		/// <summary>
+		/// 在过滤、筛选等操作时会有这样的数据产生
+		/// </summary>
+		struct RowsWithInfo {
+			IColumnInfo col_info_;
+			vector<IRow> rows_;
+		};
+
 		/// <summary>
 		/// 创建表格
 		/// </summary>
@@ -145,7 +154,22 @@ namespace SimpleTable {
 		virtual string IGetOneRowStringByRowID(const char* tableName, int rowID) = 0;
 		//virtual int ISearchRow(const bool useIndex) = 0; // 1成功 -1失败 
 		//virtual int ISetColumnInfo() = 0;
+
 		virtual IRow getOneRowByRowID(const char* tableName, int rowID, string value) = 0;
+
+		virtual vector<IRow> IGetAllRows(const char* tableName) = 0;
+
+		/// <summary>
+		/// 按照行条件筛选
+		/// </summary>
+		/// <returns></returns>
+		virtual RowsWithInfo IGetProjectedRows(RowsWithInfo rowsWithInfo) = 0;
+		/// <summary>
+		/// 对列条件过滤，选取某些列
+		/// </summary>
+		/// <param name="rows"></param>
+		/// <returns></returns>
+		virtual RowsWithInfo IGetProjectedColumns(vector<IRow> rows) = 0;
 		/// <summary>
 		/// 加载列信息
 		/// </summary>
@@ -182,32 +206,32 @@ namespace SimpleTable {
 		/// <returns></returns>
 		virtual bool IHasIndex(string tableName, string tableIndex) = 0;
 
-	//	/// <summary>
-	//	/// 判断索引是否是最新
-	//	/// </summary>
-	//	/// <returns></returns>
-	//	virtual bool IIsUpToDate() = 0;
+		//	/// <summary>
+		//	/// 判断索引是否是最新
+		//	/// </summary>
+		//	/// <returns></returns>
+		//	virtual bool IIsUpToDate() = 0;
 
-	//	/// <summary>
-	//	/// 创建索引
-	//	/// </summary>
-	//	/// <param name="tableName"></param>
-	//	/// <param name="colName"></param>
-	//	/// <returns></returns>
-	//	virtual bool ICreatIndex(string tableName, string colName) = 0;
+		//	/// <summary>
+		//	/// 创建索引
+		//	/// </summary>
+		//	/// <param name="tableName"></param>
+		//	/// <param name="colName"></param>
+		//	/// <returns></returns>
+		//	virtual bool ICreatIndex(string tableName, string colName) = 0;
 
-	//	/// <summary>
-	//	/// 更新索引
-	//	/// </summary>
-	//	/// <param name="tableName"></param>
-	//	/// <param name="colName"></param>
-	//	/// <returns></returns>
-	//	virtual bool IUpDateIndex(string tableName, string colName) = 0;
+		//	/// <summary>
+		//	/// 更新索引
+		//	/// </summary>
+		//	/// <param name="tableName"></param>
+		//	/// <param name="colName"></param>
+		//	/// <returns></returns>
+		//	virtual bool IUpDateIndex(string tableName, string colName) = 0;
 
-		/// <summary>
-		/// 获取索引
-		/// </summary>
-		/// <returns></returns>
+			/// <summary>
+			/// 获取索引
+			/// </summary>
+			/// <returns></returns>
 		virtual T IGetIndex();
 	};
 

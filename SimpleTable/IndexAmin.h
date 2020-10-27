@@ -20,13 +20,13 @@ class IndexRBTress: IIndex<map<string,vector<int> > > {
 	///// <returns></returns>
 	//bool IIsUpToDate();
 
-	///// <summary>
-	///// 创建索引
-	///// </summary>
-	///// <param name="tableName"></param>
-	///// <param name="colName"></param>
-	///// <returns></returns>
-	//bool ICreatIndex(string tableName, string colName);
+	/// <summary>
+	/// 创建索引
+	/// </summary>
+	/// <param name="tableName"></param>
+	/// <param name="colName"></param>
+	/// <returns></returns>
+	bool ICreatIndex(string tableName, string colName);
 
 	///// <summary>
 	///// 更新索引
