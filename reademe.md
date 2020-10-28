@@ -19,6 +19,7 @@ https://blog.csdn.net/u010164190/article/details/72729824
 fgetc(fp)==EOF; 判断结尾
 
 fseek不返回-1到文件末尾不会返回-1
+fgets(buffer,n,file)读取n-1个字符，这个是很奇葩的...
 
 
 
@@ -165,6 +166,10 @@ c++ NULL , 0 , nulpter
 string 是在namespace std中
 
 
+
+# 2020年10月28日22:19:54
+
+在解决fileHandler.getOneRow(file, buffer, rowNum * byteOfOneRow_, byteOfOneRow_) == 1时，fgets遇见\n, 长度到，文件尾部都会结束，fgets只会得到len-1个字符串。
 
 # C++ MUTEX
 

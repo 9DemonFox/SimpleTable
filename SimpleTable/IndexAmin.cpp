@@ -23,11 +23,11 @@ bool IndexRBTress::ICreatIndex(string tableName, string colName)
 	if (IHasIndex(tableName, colName)) {
 		// 删除索引
 	}
-	// 声明索引
-	map<string, vector<int>> = index;
-	// 读取文件
-	ISimpleTable* isimpleTable = new ISimpleTable();
-	vector<IRow> = isimpleTable->IGetAllRows(tableName.c_str());
+	//// 声明索引
+	//map<string, vector<int>> = index;
+	//// 读取文件
+	//ISimpleTable* isimpleTable = new ISimpleTable();
+	//vector<IRow> = isimpleTable->IGetAllRows(tableName.c_str());
 	
 	return false;
 }

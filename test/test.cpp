@@ -23,6 +23,7 @@ TEST_CASE("Test unit Test work", "[single-file]") {
 	REQUIRE(1 == 1);
 }
 
+
 TEST_CASE("TableAmin", "[single-file]") {
 	ISimpleTable* isimpletable = new TableAmin();
 	isimpletable->IDeleteTable(DATA_FULL_PATH);
@@ -60,10 +61,16 @@ TEST_CASE("TableAmin", "[single-file]") {
 		}
 		isimpletable->IAppendOneRow(DATA_FULL_PATH, *r_temp);
 	}
-#ifdef DEBUG
-	p(s1);
-#endif
+
+	auto rows = isimpletable->IGetAllRows(DATA_FULL_PATH);
+	REQUIRE(rows.size() == 1000);
+	FileHandler* fileHandler = FileHandler::getInstance();
+	auto r = isimpletable->IGetProjectedRows(DATA_FULL_PATH, *new vector<string>{ "  row_id","col_0001","col_0005" }, *fileHandler);
+	REQUIRE(r.getColInfo().columnName_->getAttrOfIndex(0) == "  row_id");
+	REQUIRE(r.getColInfo().columnName_->getAttrOfIndex(1) == "col_0001");
+	REQUIRE(r.getColInfo().columnName_->getAttrOfIndex(2) == "col_0005");
 }
+
 
 // 测试索引
 TEST_CASE("IndexAmin", "[single-file]") {
@@ -79,6 +86,7 @@ TEST_CASE("IndexAmin", "[single-file]") {
 		isimpletable->IAppendOneRow(DATA_FULL_PATH, *r_temp);
 	} // 创建1000行表
 }
+
 
 TEST_CASE("IRow RowAmin", "[single-file]") {
 	IRow* irow = new IRow(1, 8);
@@ -102,7 +110,9 @@ TEST_CASE("IRow RowAmin", "[single-file]") {
 #ifdef DEBUG
 	r3->printData();
 #endif // DEBUG
-	}
+}
+
+
 
 TEST_CASE("IColumnInfo", "[single-file]") {
 	IColumnInfo* iColumnInfo = new IColumnInfo(100);
@@ -115,7 +125,8 @@ TEST_CASE("IColumnInfo", "[single-file]") {
 
 }
 
-TEST_CASE("Util", "[single-file]") {
+
+TEST_CASE("Utils", "[single-file]") {
 	REQUIRE(Utils::num2NSizeString(8, 9) == "00000009");
 	//REQUIRE(num2NSizeString(3, 1000) == "");
 	REQUIRE(Utils::nSizeString2Num("00000009") == 9);
@@ -165,8 +176,9 @@ TEST_CASE("Serialization", "[single-file]") {
 		}
 	}
 }
+
 // 测试多线程
-TEST_CASE("threads", "[single - file]") {
+TEST_CASE("threads", "[single-file]") {
 	vector<thread> threads;
 	const char* filePath = "testThreads.txt";
 	remove(filePath);
@@ -184,8 +196,8 @@ TEST_CASE("threads", "[single - file]") {
 
 }
 
+
 TEST_CASE("FileHandler", "single-file") {
 	int i = 100;
-	FileHandler fileHandler = FileHandler::getInstance();
-	fileHandler.printNum(&i);
+	FileHandler* fileHandler = FileHandler::getInstance();
 }

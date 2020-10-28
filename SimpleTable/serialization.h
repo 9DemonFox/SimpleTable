@@ -1,6 +1,6 @@
 #ifndef STLSERIALIZATION_SERIALIZATION_H
 #define STLSERIALIZATION_SERIALIZATION_H
-
+#include "config.h"
 #include <string>
 #include <sstream>
 #include <fstream>

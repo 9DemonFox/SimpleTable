@@ -1,5 +1,5 @@
 #pragma once
-
+#include "config.h"
 #include "ISimpleTable.h"
 namespace SimpleTable {
 	class RowAmin :IRow { // Ëæ»úÐÐ

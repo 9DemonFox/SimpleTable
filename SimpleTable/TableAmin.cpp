@@ -2,8 +2,10 @@
 #include "RowAmin.h"
 #include <errno.h>
 #include <algorithm>
+#include <string.h>
 //#define DEBUG
 #define pr(x) cout<<#x<<" = "<<x<<endl
+using namespace std;
 namespace SimpleTable { // 为了顺序访问的需要
 
 
@@ -137,11 +139,14 @@ namespace SimpleTable { // 为了顺序访问的需要
 	{
 		// 计算所有行数
 		vector<IRow> rows;
-		FILE* file = fopen(tableName);
+		FILE* file = fopen(tableName, "r");
 		fseek(file, 0, SEEK_END);
 		int rowNum = ftell(file) / byteOfOneRow_ - info_row_num_; // 总行数 = 文件大小/每行大小 - 列信息行树;
-		for (int i = 1;i <= rowNum;i++) {
-			rows.push_back(IGetOneRowStringByRowID(i));
+		for (int i = 1; i <= rowNum; i++) {
+			IRow* r = new IRow();
+			r->setRowId(i);
+			r->setDataFromString(seprator_, IGetOneRowStringByRowID(tableName, i));
+			rows.push_back(*r);
 		}
 		return rows;
 	}
@@ -156,32 +161,66 @@ namespace SimpleTable { // 为了顺序访问的需要
 	RowsWithInfo TableAmin::IGetProjectedRows(const char* tableName, vector<string> columnName, FileHandler& fileHandler)
 	{
 		// 选出column所在列的列号
-		auto columnInfo = new IColumnInfo();
+		IColumnInfo* columnInfo = new IColumnInfo(maxColumn_);
 		FILE* file;
 		file = fopen(tableName, "r");// 判断文件是否存在 只读方式打开
 		int lineCount = 0;
 		int maxByte = 0;
-		fseek(file, info_size_, SEEK_SET);
+		RowsWithInfo rowsWithInfo;
 		if (file != NULL) {
-			if (char* buffer = (char*)malloc(sizeof(char) * byteOfOneRow_)) {
+			if (char* buffer = (char*)malloc(sizeof(char) * byteOfOneRow_ + 1)) {
 				IColumnInfo* colInfo = new IColumnInfo(this->maxColumn_);
-				if (fileHandler.getOneRow(file, buffer) == 1) {
-					colInfo->columnType_->setDataFromString(buffer);
+				// fgets()读取n-1个字符
+				if (fileHandler.getOneRow(file, buffer, 0 * byteOfOneRow_, byteOfOneRow_) == 1) {
+					colInfo->columnType_->setDataFromString(seprator_, buffer);
 				}
-				if (fileHandler.getOneRow(file, buffer) == 1) {
-					colInfo->columnName_->setDataFromString(buffer);
+				if (fileHandler.getOneRow(file, buffer, 1 * byteOfOneRow_, byteOfOneRow_) == 1) {
+					colInfo->columnName_->setDataFromString(seprator_, buffer);
 				}
 				int rowId = 0;
-				RowsWithInfo* rowWithInfo = new RowsWithInfo(columnName.size());
 				vector<int> indexs;
-				for each (var name in *colInfo->columnName_)
-				{
-					var it = find(columnName.begin(), columnName.end(), name);
-					it == columnName.end() ? continue : ;
+				// 获取需要加载的列
+				vector<string>::iterator iter;
+				for (iter = columnName.begin(); iter != columnName.end(); iter++) {
+					for (map<int, string>::iterator iter_col_info = colInfo->columnName_->data_.begin(); iter_col_info != colInfo->columnName_->data_.end(); iter_col_info++) {
+						if (iter_col_info->second == *iter) {
+							indexs.push_back(distance(colInfo->columnName_->data_.begin(), iter_col_info));
+						}
+					}
 				}
-				while (fileHandler.getOneRow(file, buffer) == 1) {
-
+				// 返回信息构建
+				vector<int>::iterator int_iter;
+				string retColType_s = "";
+				string retColName_s = "";
+				IRow retColType;
+				IRow retColName;
+				for (int_iter = indexs.begin(); int_iter != indexs.end(); int_iter++) {
+					retColName_s += colInfo->columnName_->getAttrOfIndex(*int_iter) + seprator_;
+					retColType_s += colInfo->columnType_->getAttrOfIndex(*int_iter) + seprator_;
 				}
+				retColName_s += "\n";
+				retColType_s += "\n";
+				retColType.setDataFromString(seprator_, retColType_s);
+				retColName.setDataFromString(seprator_, retColName_s);
+				// 创建被过滤的行列
+				colInfo = new IColumnInfo(&retColName, &retColType);
+				rowsWithInfo.setInfo(*colInfo);
+				int p;
+				vector<IRow>* rows = new vector<IRow>();// 返回的列
+				int rowNum = 0 + info_row_num_;// 当前行号
+				while (fileHandler.getOneRow(file, buffer, rowNum * byteOfOneRow_, byteOfOneRow_) == 1) { // 读取新行
+					IRow t_row(rowNum - info_row_num_ + 1, maxColumn_);
+					t_row.setDataFromString(seprator_, buffer);
+					IRow r_row(rowNum - info_row_num_ + 1,indexs.size());// 存project后的数据
+					string t_string = "";
+					for (int_iter = indexs.begin(), p = 0; int_iter != indexs.end(); int_iter++, p++) {
+						r_row.setAttrOfIndex(p, t_row.getAttrOfIndex(*int_iter));
+					}
+					r_row.setRowId(Utils::nSizeString2Num(r_row.getAttrOfIndex(0)));
+					rows->push_back(r_row);
+					rowNum++;
+				}
+				rowsWithInfo.setRows(*rows);
 			}
 
 		}
@@ -189,8 +228,7 @@ namespace SimpleTable { // 为了顺序访问的需要
 			throw "table not exist";
 		}
 
-		return RowsWithInfo();
-		return RowsWithInfo();
+		return rowsWithInfo;
 	}
 
 

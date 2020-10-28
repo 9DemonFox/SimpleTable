@@ -45,6 +45,9 @@ int SimpleTable::IRow::setDataFromString(char seprator, string s)
 	int i = 0;
 	int index = 0;
 	int len = s.length();
+	if (s[len - 1] != '\n') {
+		throw "string must end with \'\\n\'";
+	}
 	int begin = 0;
 	string content;
 	while (s[i] != '\n') {

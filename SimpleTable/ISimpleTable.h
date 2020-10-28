@@ -10,7 +10,8 @@
 #include <iostream>
 #include "ISimpleTable.h"
 #include "Util.h"
-//#define DEBUG
+#include "fileHelper.h"
+#include "config.h"
 using namespace std;
 
 namespace SimpleTable {
@@ -49,6 +50,8 @@ namespace SimpleTable {
 		/// <returns></returns>
 		int rowId() { return rowId_; }
 
+		void setRowId(int rowId) { rowId_ = rowId; }
+
 		/// <summary>
 		/// 获取最多有多少列
 		/// </summary>
@@ -81,7 +84,13 @@ namespace SimpleTable {
 	/// </summary>
 	class IColumnInfo {
 	public:
-		IColumnInfo(int maxColumn) {
+		IColumnInfo() {};
+		IColumnInfo(int maxColumn) { init(maxColumn); };
+		IColumnInfo(IRow* columnName, IRow* columnType) {
+			columnName_ = columnName;
+			columnType_ = columnType;
+		};
+		void init(int maxColumn) {
 			columnType_ = new IRow(0, maxColumn);
 			columnName_ = new IRow(1, maxColumn);
 			for (int cET = columnTypeEnum::begin_ + 1; cET < columnTypeEnum::end_; cET++) {
@@ -98,6 +107,10 @@ namespace SimpleTable {
 				}
 			}
 		};
+		void init(IRow* columnName, IRow* columnType) {
+			columnName_ = columnName;
+			columnType_ = columnType;
+		}
 		enum columnTypeEnum// 列支持T_INT 和 T_STRING
 		{
 			begin_ = 0,
@@ -127,17 +140,26 @@ namespace SimpleTable {
 
 	};
 
-	/// <summary>
+/// <summary>
 /// 在过滤、筛选等操作时会有这样的数据产生
 /// </summary>
 	class RowsWithInfo {
 	public:
-		RowsWithInfo(int maxColumn) {
-			col_info_(maxColumn);
+		RowsWithInfo() {
 		}
+		void setRows(vector<IRow>rows) {
+			rows_ = rows;
+		}
+		void setInfo(IColumnInfo col_info) {
+			col_info_ = col_info;
+		}
+		vector<IRow> getRows() { return rows_; }
+		IColumnInfo getColInfo() { return col_info_; }
+	private:
 		IColumnInfo col_info_;
 		vector<IRow> rows_;
 	};
+
 
 	class ISimpleTable
 	{
@@ -163,7 +185,7 @@ namespace SimpleTable {
 
 		virtual IRow getOneRowByRowID(const char* tableName, int rowID, string value) = 0;
 
-		//virtual vector<IRow> IGetAllRows(const char* tableName) = 0;
+		virtual vector<IRow> IGetAllRows(const char* tableName) = 0;
 
 		///// <summary>
 		///// 从文件中筛选行、列
@@ -172,6 +194,7 @@ namespace SimpleTable {
 		///// <returns></returns>
 		//virtual RowsWithInfo IGetProjectedRows(const char* tableName, vector<int> row_id, vector<string> columnName) = 0;
 
+		virtual RowsWithInfo IGetProjectedRows(const char* tableName, vector<string> columnName, FileHandler& fileHandler) = 0;
 		/// <summary>
 		/// 重载，没有row_id，那么获取所有行的某列
 		/// </summary>
