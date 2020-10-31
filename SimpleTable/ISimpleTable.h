@@ -24,7 +24,7 @@ namespace SimpleTable {
 		/// <param name="rowId">行号</param>
 		/// <param name="maxIndex_">列的数目</param>
 		IRow(int rowId, int maxIndex_);
-		IRow() {};
+		IRow() { maxIndex_ = 1000; };
 	public:
 
 		/// <summary>
@@ -58,6 +58,8 @@ namespace SimpleTable {
 		/// <returns></returns>
 		int maxIndex() { return maxIndex_; }
 
+		void setMaxIndex(int maxIndex) { maxIndex_ = maxIndex; }
+
 		string dataToString();
 
 		/// <summary>
@@ -86,13 +88,16 @@ namespace SimpleTable {
 	public:
 		IColumnInfo() {};
 		IColumnInfo(int maxColumn) { init(maxColumn); };
-		IColumnInfo(IRow* columnName, IRow* columnType) {
+		IColumnInfo(IRow columnName, IRow columnType) {
 			columnName_ = columnName;
 			columnType_ = columnType;
 		};
 		void init(int maxColumn) {
-			columnType_ = new IRow(0, maxColumn);
-			columnName_ = new IRow(1, maxColumn);
+			columnType_.setRowId(-1);
+			columnName_.setRowId(0);
+			columnType_.setMaxIndex(maxColumn);
+			columnName_.setMaxIndex(maxColumn);
+
 			for (int cET = columnTypeEnum::begin_ + 1; cET < columnTypeEnum::end_; cET++) {
 				switch (cET)
 				{
@@ -107,7 +112,7 @@ namespace SimpleTable {
 				}
 			}
 		};
-		void init(IRow* columnName, IRow* columnType) {
+		void init(IRow columnName, IRow columnType) {
 			columnName_ = columnName;
 			columnType_ = columnType;
 		}
@@ -126,12 +131,12 @@ namespace SimpleTable {
 		/// <summary>
 		/// 存储列名
 		/// </summary>
-		IRow* columnName_;
+		IRow columnName_;
 
 		/// <summary>
 		/// 存储列的类型
 		/// </summary>
-		IRow* columnType_;
+		IRow columnType_;
 
 		/// <summary>
 		/// 类型名到它的存储名
@@ -140,9 +145,9 @@ namespace SimpleTable {
 
 	};
 
-/// <summary>
-/// 在过滤、筛选等操作时会有这样的数据产生
-/// </summary>
+	/// <summary>
+	/// 在过滤、筛选等操作时会有这样的数据产生
+	/// </summary>
 	class RowsWithInfo {
 	public:
 		RowsWithInfo() {
@@ -180,7 +185,20 @@ namespace SimpleTable {
 		virtual int IDeleteTable(const char* tablename) = 0;
 		virtual int IAppendOneRow(const char* tableName, IRow row) = 0;// return whitch line insered to, -1 失败
 		virtual string IGetOneRowStringByRowID(const char* tableName, int rowID) = 0;
-		//virtual int ISearchRow(const bool useIndex) = 0; // 1成功 -1失败 
+
+		/// <summary>
+		/// 按照某列条件筛选
+		/// </summary>
+		/// <param name="useIndex"></param>
+		/// <returns></returns>
+
+		// col = "aaaaaaaa";
+		// 采取不关闭文件流的方法读取
+		virtual RowsWithInfo ISearchRows(const char* tablename, string col_name, string operater, string parameter, FileHandler& fileHandler) = 0; // 1成功 -1失败 
+
+		//  "aaaaaaaa" <= col <= "bbbbbbbb"
+		//virtual vector<IRow> ISearchRows(const char* tablename, string parameter1, string operater1, string col_name, string operater2, string parameter2) = 0;
+
 		//virtual int ISetColumnInfo() = 0;
 
 		virtual IRow getOneRowByRowID(const char* tableName, int rowID, string value) = 0;
@@ -192,22 +210,22 @@ namespace SimpleTable {
 		///// </summary>
 		///// <param name="tableName"></param>
 		///// <returns></returns>
-		//virtual RowsWithInfo IGetProjectedRows(const char* tableName, vector<int> row_id, vector<string> columnName) = 0;
+		//virtual RowsWithInfo IGetProjectedColumns(const char* tableName, vector<int> row_id, vector<string> columnName) = 0;
 
-		virtual RowsWithInfo IGetProjectedRows(const char* tableName, vector<string> columnName, FileHandler& fileHandler) = 0;
+		virtual RowsWithInfo IGetProjectedColumns(const char* tableName, vector<string> columnName, FileHandler& fileHandler) = 0;
 		/// <summary>
 		/// 重载，没有row_id，那么获取所有行的某列
 		/// </summary>
 		/// <param name="tableName"></param>
 		/// <param name="columnName"></param>
 		/// <returns></returns>
-		//virtual RowsWithInfo IGetProjectedRows(const char* tableName, vector<string> columnName) = 0;
+		//virtual RowsWithInfo IGetProjectedColumns(const char* tableName, vector<string> columnName) = 0;
 
 		/// <summary>
 		/// 按照行条件筛选
 		/// </summary>
 		/// <returns></returns>
-		//virtual RowsWithInfo IGetProjectedRows(RowsWithInfo rowsWithInfo) = 0;
+		//virtual RowsWithInfo IGetProjectedColumns(RowsWithInfo rowsWithInfo) = 0;
 		/// <summary>
 		/// 对列条件过滤，选取某些列
 		/// </summary>
@@ -240,8 +258,9 @@ namespace SimpleTable {
 	/// <summary>
 	/// index 接口
 	/// </summary>
-	template <class T>
+
 	class IIndex {
+
 	public:
 
 		/// <summary>
@@ -250,41 +269,17 @@ namespace SimpleTable {
 		/// <returns></returns>
 		virtual bool IHasIndex(string tableName, string tableIndex) = 0;
 
-		//	/// <summary>
-		//	/// 判断索引是否是最新
-		//	/// </summary>
-		//	/// <returns></returns>
-		//	virtual bool IIsUpToDate() = 0;
+		/// <summary>
+		/// 创建索引
+		/// </summary>
+		/// <param name="tableName"></param>
+		/// <param name="colName"></param>
+		/// <returns></returns>
+		virtual int ICreateIndex(string tableName, string columnName, ISimpleTable* isimpleTable, FileHandler* fileHandler) = 0;
 
-		//	/// <summary>
-		//	/// 创建索引
-		//	/// </summary>
-		//	/// <param name="tableName"></param>
-		//	/// <param name="colName"></param>
-		//	/// <returns></returns>
-		//	virtual bool ICreatIndex(string tableName, string colName) = 0;
+		virtual int ISearchRows(string tableName, string columnName, string op, string parameter, vector<int>* result) = 0;
 
-		//	/// <summary>
-		//	/// 更新索引
-		//	/// </summary>
-		//	/// <param name="tableName"></param>
-		//	/// <param name="colName"></param>
-		//	/// <returns></returns>
-		//	virtual bool IUpDateIndex(string tableName, string colName) = 0;
-
-			/// <summary>
-			/// 获取索引
-			/// </summary>
-			/// <returns></returns>
-		virtual T IGetIndex();
 	};
-
-	template<class T>
-	inline T IIndex<T>::IGetIndex()
-	{
-		return T();
-	}
-
 }
 
 

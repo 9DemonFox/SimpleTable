@@ -10,6 +10,7 @@
 //#define DEBUG
 #define p(x) cout<<#x<<":"<<x<<endl
 #include <mutex>
+#include "IndexAmin.h"
 
 using namespace SimpleTable;
 using namespace stl_serialization;
@@ -51,24 +52,40 @@ TEST_CASE("TableAmin", "[single-file]") {
 	s1 = isimpletable->IGetOneRowStringByRowID(DATA_FULL_PATH, 2);
 	REQUIRE(s0 == s1);
 
-	//
+	// 重新创建文件
 	isimpletable->IDeleteTable(DATA_FULL_PATH);
 	REQUIRE(isimpletable->ICreateTable(DATA_FULL_PATH) == 1);// 创建成功
-	for (int k = 0; k < 1000; k++) {
-		IRow* r_temp = new IRow(k + 1, 8);
+
+	// -1和0 模拟columninfo
+	for (int k = 1; k < 1000; k++) {
+		IRow* r_temp = new IRow(k, 8);
 		for (int i = 1; i < 8; i++) {
 			r_temp->setAttrOfIndex(i, Utils::getRandomNByteString(8));
+		}
+		if (k == 5) {
+			r_temp->setAttrOfIndex(3, "testrow5");
 		}
 		isimpletable->IAppendOneRow(DATA_FULL_PATH, *r_temp);
 	}
 
 	auto rows = isimpletable->IGetAllRows(DATA_FULL_PATH);
-	REQUIRE(rows.size() == 1000);
+	REQUIRE(rows.size() == 999);
+	// 测试得到某些列
 	FileHandler* fileHandler = FileHandler::getInstance();
-	auto r = isimpletable->IGetProjectedRows(DATA_FULL_PATH, *new vector<string>{ "  row_id","col_0001","col_0005" }, *fileHandler);
-	REQUIRE(r.getColInfo().columnName_->getAttrOfIndex(0) == "  row_id");
-	REQUIRE(r.getColInfo().columnName_->getAttrOfIndex(1) == "col_0001");
-	REQUIRE(r.getColInfo().columnName_->getAttrOfIndex(2) == "col_0005");
+	auto r = isimpletable->IGetProjectedColumns(DATA_FULL_PATH, *new vector<string>{ "  row_id","col_0001" }, *fileHandler);
+	REQUIRE(r.getColInfo().columnName_.getAttrOfIndex(0) == "  row_id");
+	REQUIRE(r.getColInfo().columnName_.getAttrOfIndex(1) == "col_0001");
+	//REQUIRE(r.getColInfo().columnName_->getAttrOfIndex(2) == "col_0005");
+
+	// 测试查询某行
+	auto search_result = isimpletable->ISearchRows(DATA_FULL_PATH, "col_0003", "=", "testrow5", *fileHandler);
+	auto search_rows = search_result.getRows()[0];
+	REQUIRE(search_rows.getAttrOfIndex(0) == "5");// 插入到第6行(从0开始)
+	REQUIRE(search_rows.getAttrOfIndex(3) == "testrow5");
+
+	IndexRBTree* indexRBTress = new IndexRBTree();
+
+	indexRBTress->init_map_serilization(r);
 }
 
 
@@ -121,7 +138,7 @@ TEST_CASE("IColumnInfo", "[single-file]") {
 	iColumnInfo->columnName_->printData();
 	iColumnInfo->columnType_->printData();
 #endif // DEBUG
-	REQUIRE(iColumnInfo->columnName_->dataToString().length() == 100 * (8 + 1) + 1);
+	REQUIRE(iColumnInfo->columnName_.dataToString().length() == 100 * (8 + 1) + 1);
 
 }
 
@@ -172,8 +189,9 @@ TEST_CASE("Serialization", "[single-file]") {
 		int k = it->first;
 		for (int k = 0; k <= it->first; k++)
 		{
-			cout << it->second[k] << endl;
+			cout << it->second[k];
 		}
+		cout << endl;
 	}
 }
 
@@ -191,6 +209,9 @@ TEST_CASE("threads", "[single-file]") {
 	FILE* file = fopen("testThreads.txt", "r");
 	char* buff = (char*)malloc(sizeof(char) * 64);
 	fgets(buff, 100, file);
+#ifdef DEBUG
+
+#endif // DEBUG
 	cout << "file:" << buff << endl;
 	REQUIRE(strcmp(buff, "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnop") == 0);
 

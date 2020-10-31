@@ -75,12 +75,12 @@ void SimpleTable::IColumnInfo::setSerialColumnNameAndRanomType(int maxColumn, in
 {
 	for (int i = 0; i < maxColumn; i++) {
 		if (i == 0) {
-			this->columnName_->setAttrOfIndex(0, Utils::paddingToNByteString("row_id", maxByte, Utils::POSITION::front)); // 第一列是列名
-			this->columnType_->setAttrOfIndex(0, Utils::paddingToNByteString(typeMap[T_INT], maxByte, Utils::POSITION::front));
+			this->columnName_.setAttrOfIndex(0, Utils::paddingToNByteString("row_id", maxByte, Utils::POSITION::front)); // 第一列是列名
+			this->columnType_.setAttrOfIndex(0, Utils::paddingToNByteString(typeMap[T_INT], maxByte, Utils::POSITION::front));
 		}
 		else {
-			this->columnName_->setAttrOfIndex(i, "col_" + Utils::num2NSizeString(maxByte - 4, i));
-			this->columnType_->setAttrOfIndex(i, Utils::paddingToNByteString("string", maxByte, Utils::POSITION::front));
+			this->columnName_.setAttrOfIndex(i, "col_" + Utils::num2NSizeString(maxByte - 4, i));
+			this->columnType_.setAttrOfIndex(i, Utils::paddingToNByteString("string", maxByte, Utils::POSITION::front));
 		}
 	}
 }

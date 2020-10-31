@@ -1,4 +1,6 @@
 /.vs/
 /out/
+/.idea/
+/test/.vs/
 main/out/
 test/out/

@@ -2,12 +2,17 @@
 #include<vector>
 #include<map>
 #include "config.h"
+#include "serialization.h"
+using namespace stl_serialization;
 using namespace std;
 using namespace SimpleTable;
 /// <summary>
 /// 红黑树实现索引
 /// </summary>
-class IndexRBTress : IIndex<map<string, vector<int> > > {
+class IndexRBTree :public IIndex {
+public:
+
+	IndexRBTree() {}
 
 	/// <summary>
 	/// 判断是否有该表该列的索引
@@ -15,39 +20,23 @@ class IndexRBTress : IIndex<map<string, vector<int> > > {
 	/// <returns></returns>
 	bool IHasIndex(string tableName, string tableIndex);
 
-	///// <summary>
-	///// 判断索引是否是最新
-	///// </summary>
-	///// <returns></returns>
-	//bool IIsUpToDate();
+	int init_map_serilization(RowsWithInfo rowsWithInfo);
+
+	int ICreateIndex(string tableName, string columnName, ISimpleTable* isimpleTable, FileHandler* fileHandler);
+
 
 	/// <summary>
-	/// 创建索引
+	/// 
 	/// </summary>
 	/// <param name="tableName"></param>
-	/// <param name="colName"></param>
-	/// <returns></returns>
-	bool ICreatIndex(string tableName, string colName);
+	/// <param name="columnName"></param>
+	/// <param name="op"></param>
+	/// <param name="parameter"></param>
+	/// <param name="result"></param>
+	/// <returns>-1 无index 0无结果 正数 结果数目</returns>
+	int ISearchRows(string tableName, string columnName, string op, string parameter, vector<int>* result);
 
+private:
+	MapSerialization<string, vector<int>> map_seri;// 文件序列化的通道
 
-	/// <summary>
-	/// 低耦合
-	/// </summary>
-	/// <returns></returns>
-
-	map<string, vector<int> > ICreatIndex(vector<int> values, vector<string> keys);// 或许一个key对应很多values
-
-	///// <summary>
-	///// 更新索引
-	///// </summary>
-	///// <param name="tableName"></param>
-	///// <param name="colName"></param>
-	///// <returns></returns>
-	//bool IUpDateIndex(string tableName, string colName);
-
-	///// <summary>
-	///// 获取索引
-	///// </summary>
-	///// <returns></returns>
-	//T IGetIndex();
 };

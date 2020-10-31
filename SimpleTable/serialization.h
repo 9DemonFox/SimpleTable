@@ -28,6 +28,17 @@ namespace stl_serialization
 			file.close();
 		}
 
+		void serialization(const char* filePath)
+		{
+			std::ostringstream ostream;
+			boost::archive::binary_oarchive oa(ostream);
+			oa << *this;
+			fstream file;
+			file.open(filePath, ios::binary | ios::out);
+			file << ostream.str(); // 将数据写入文件
+			file.close();
+		}
+
 		void unserialization(std::istringstream& istream)
 		{
 			boost::archive::binary_iarchive ia(istream);

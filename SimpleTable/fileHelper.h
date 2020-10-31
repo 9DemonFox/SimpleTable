@@ -38,6 +38,25 @@ public:
 	/// <param name="file"></param>
 	/// <param name="buffer"></param>
 	/// <returns></returns>
+	int getOneRowWithMutex(FILE* file, char* buffer, const int file_pos, const int lengthOfOneRow) {
+#ifdef DEBUG
+		cout << "\nfile_pos " << file_pos << " file pointer position: " << ftell(file);
+#endif // DEBUG
+		mtx.lock();
+		fseek(file, file_pos, SEEK_SET);
+		if (fgetc(file) == EOF)
+		{
+			mtx.unlock();
+			return 0;
+		}
+		else {
+			fseek(file, -1, SEEK_CUR);
+			fgets(buffer, lengthOfOneRow + 1, file);//read lengthOfOneRow
+			mtx.unlock();
+			return 1;
+		}
+	}
+
 	int getOneRow(FILE* file, char* buffer, const int file_pos, const int lengthOfOneRow) {
 #ifdef DEBUG
 		cout << "\nfile_pos " << file_pos << " file pointer position: " << ftell(file);

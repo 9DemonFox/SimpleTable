@@ -30,11 +30,14 @@ namespace SimpleTable {
 
 		string IGetOneRowStringByRowID(const char* tableName, int rowID);
 
+		RowsWithInfo ISearchRows(const char* tablename, string col_name, string operater, string parameter, FileHandler& fileHandler);
+
 		IRow getOneRowByRowID(const char* tableName, int rowID, string value);
 
 		vector<IRow> IGetAllRows(const char* tableName);
 
-		RowsWithInfo IGetProjectedRows(const char* tableName, vector<string> columnName,FileHandler& fileHandler);
+		RowsWithInfo IGetProjectedColumns(const char* tableName, vector<string> columnName, FileHandler& fileHandler);
 
+		bool compare(const string op, const string l, const string r);
 	};
 }

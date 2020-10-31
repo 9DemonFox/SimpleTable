@@ -171,6 +171,11 @@ string 是在namespace std中
 
 在解决fileHandler.getOneRow(file, buffer, rowNum * byteOfOneRow_, byteOfOneRow_) == 1时，fgets遇见\n, 长度到，文件尾部都会结束，fgets只会得到len-1个字符串。
 
+# 2020年10月31日10:06:04
+
+指针对象和值对象的区别
+我在一个IndexAmin中使用了指针对象，然后在一个函数中获取指针对象，结果函数结束，指针对象为空，所以还是要值对象。
+
 # C++ MUTEX
 
 （将mutex传入线程）https://blog.csdn.net/aixintianshideshouhu/article/details/94599830
@@ -265,3 +270,6 @@ As the unit test has a main,we must add
 > list(REMOVE_ITEM SIMPLETABLE_SRCS ${PROJECT_SOURCE_DIR}/SimpleTable.cpp)
 
 # config the chinese support in ubuntu seems wasting time
+
+# c++ switch
+		// switch 只能是常量表达式 int char ...
