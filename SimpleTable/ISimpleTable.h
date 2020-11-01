@@ -12,6 +12,10 @@
 #include "Util.h"
 #include "fileHelper.h"
 #include "config.h"
+//#include "IndexAmin.h"
+// 添加这一句就会交叉引用产生错误
+//#include "IndexAmin.h"
+
 using namespace std;
 
 namespace SimpleTable {
@@ -165,15 +169,12 @@ namespace SimpleTable {
 		vector<IRow> rows_;
 	};
 
-
 	class ISimpleTable
 	{
 	public:
 		ISimpleTable() :rowNum_(0) {
 			columnInfo_ = new IColumnInfo(maxColumn_); // 设置列信息
 		}
-
-
 
 		/// <summary>
 		/// 创建表格
@@ -213,32 +214,12 @@ namespace SimpleTable {
 		//virtual RowsWithInfo IGetProjectedColumns(const char* tableName, vector<int> row_id, vector<string> columnName) = 0;
 
 		virtual RowsWithInfo IGetProjectedColumns(const char* tableName, vector<string> columnName, FileHandler& fileHandler) = 0;
-		/// <summary>
-		/// 重载，没有row_id，那么获取所有行的某列
-		/// </summary>
-		/// <param name="tableName"></param>
-		/// <param name="columnName"></param>
-		/// <returns></returns>
-		//virtual RowsWithInfo IGetProjectedColumns(const char* tableName, vector<string> columnName) = 0;
 
-		/// <summary>
-		/// 按照行条件筛选
-		/// </summary>
-		/// <returns></returns>
-		//virtual RowsWithInfo IGetProjectedColumns(RowsWithInfo rowsWithInfo) = 0;
-		/// <summary>
-		/// 对列条件过滤，选取某些列
-		/// </summary>
-		/// <param name="rows"></param>
-		/// <returns></returns>
-		//virtual RowsWithInfo IGetProjectedColumns(vector<IRow> rows) = 0;
-		/// <summary>
-		/// 加载列信息
-		/// </summary>
-		//virtual void ILoadColumnInfo() = 0;
 		char seprator() {
 			return seprator_;
 		}
+
+		virtual int ICreateIndex(string columnName) = 0;
 		//virtual int IAddIndex() = 0; // 1 成功 -1 失败
 		//virtual int IDeleteIndex(const string indexName) = 0;// 1成功
 		//virtual int IGetAllIndex() = 0;
@@ -255,12 +236,10 @@ namespace SimpleTable {
 		static const int info_size_ = info_row_num_ * byteOfOneRow_; // 存储文件信息的行
 	};
 
-	/// <summary>
-	/// index 接口
-	/// </summary>
-
 	class IIndex {
-
+		/// <summary>
+		/// Index接口
+		/// </summary>
 	public:
 
 		/// <summary>

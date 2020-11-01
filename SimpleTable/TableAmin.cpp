@@ -1,13 +1,20 @@
 #include "TableAmin.h"
 #include "RowAmin.h"
+#include "IndexAmin.h"
 #include <errno.h>
 #include <algorithm>
 #include <string.h>
-//#define DEBUG
-#define pr(x) cout<<#x<<" = "<<x<<endl
+
 using namespace std;
 namespace SimpleTable { // 为了顺序访问的需要
 
+
+	int TableAmin::ICreateIndex(string columnName)
+	{
+		IIndex* index = new IndexRBTree();
+		index->ICreateIndex(tableName_, columnName, this, FileHandler::getInstance());
+		return 0;
+	}
 
 	int TableAmin::ICreateTable(const char* tablename)
 	{

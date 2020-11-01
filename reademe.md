@@ -273,3 +273,27 @@ As the unit test has a main,we must add
 
 # c++ switch
 		// switch 只能是常量表达式 int char ...
+
+# c++ 在类的定义中，只能层层调用
+
+class A
+
+{
+
+class B
+
+}
+
+class B
+
+{
+
+​	class A
+
+}
+
+A->B
+
+B->A 不行
+
+交叉引用时，放在同一个命名空间

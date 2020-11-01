@@ -6,6 +6,7 @@
 using namespace stl_serialization;
 using namespace std;
 using namespace SimpleTable;
+
 /// <summary>
 /// ºìºÚÊ÷ÊµÏÖË÷Òı
 /// </summary>

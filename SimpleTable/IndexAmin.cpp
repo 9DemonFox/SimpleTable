@@ -3,12 +3,12 @@
 #include "Util.h"
 #include <vector>
 #include <assert.h>
+using namespace SimpleTable;
 
 bool IndexRBTree::IHasIndex(string tableName, string tableIndex)
 {
 	return Utils::existsFile(tableName) ? Utils::existsFile(tableName + "_" + tableIndex + ".bin") : false;
 }
-
 
 int IndexRBTree::init_map_serilization(RowsWithInfo rowsWithInfo)
 {
