@@ -132,6 +132,52 @@ namespace SimpleTable { // 为了顺序访问的需要
 
 	}
 
+	RowsWithInfo TableAmin::ISearchRows(const char* tablename, string col_name, string operater, string parameter)
+	{
+		IIndex* index = new IndexRBTree();
+		// 待处理
+		if (!index->IHasIndex(tablename, col_name))return *new RowsWithInfo();
+		vector<int>* result = new vector<int>();// 存储行号结果的
+		index->ISearchRows(tablename, col_name, operater, parameter, result);
+		// 选出column所在列的列号
+		FILE* file;
+		file = fopen(tablename, "r");// 判断文件是否存在 只读方式打开
+		IColumnInfo* colInfo = new IColumnInfo(this->maxColumn_);//返回的列信息
+		vector<IRow>* rows = new vector<IRow>();// 返回的列
+		RowsWithInfo rowsWithInfo;
+		int lineCount = 0;
+		int maxByte = 0;
+		FileHandler* fileHandler = FileHandler::getInstance();
+		if (file != NULL) {
+			if (char* buffer = (char*)malloc(sizeof(char) * byteOfOneRow_ + 1)) {
+				// fgets()读取n-1个字符
+				if (fileHandler->getOneRow(file, buffer, 0 * byteOfOneRow_, byteOfOneRow_) == 1) {
+					colInfo->columnType_.setDataFromString(seprator_, buffer);
+				}
+				if (fileHandler->getOneRow(file, buffer, 1 * byteOfOneRow_, byteOfOneRow_) == 1) {
+					colInfo->columnName_.setDataFromString(seprator_, buffer);
+				}
+				int rowId = 0;
+				int ordinal = 0;// 选取的列序号
+				// 获取需要加载的列号
+				// 找到列号
+				for (int i = 0; i < result->size(); i++) {
+					int line_num = (*result)[i] + info_row_num_;
+					if (fileHandler->getOneRow(file, buffer, line_num * byteOfOneRow_, byteOfOneRow_) == 1) {
+						IRow t_row(line_num - info_row_num_ + 1, maxColumn_);// 文件中读取的行
+						t_row.setDataFromString(seprator_, buffer);
+						rows->push_back(t_row);
+					}
+				}
+
+			}
+
+		}
+		rowsWithInfo.setInfo(*colInfo);
+		rowsWithInfo.setRows(*rows);
+		return rowsWithInfo;
+	}
+
 	/// <summary>
 	/// 获取满足条件的整行
 	/// </summary>
@@ -193,8 +239,6 @@ namespace SimpleTable { // 为了顺序访问的需要
 		rowsWithInfo.setInfo(*colInfo);
 		return rowsWithInfo;
 	}
-
-
 
 	IRow TableAmin::getOneRowByRowID(const char* tableName, int rowID, string value)
 	{
