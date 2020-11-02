@@ -33,9 +33,7 @@ namespace SimpleTable {
 
 		string IGetOneRowStringByRowID(const char* tableName, int rowID);
 
-		RowsWithInfo ISearchRows(const char* tablename, string col_name, string operater, string parameter);
-
-		RowsWithInfo ISearchRows(const char* tablename, string col_name, string operater, string parameter, FileHandler& fileHandler);
+		RowsWithInfo ISearchRows(const char* tablename, string col_name, string operater, string parameter, bool useIndex = false);
 
 		IRow getOneRowByRowID(const char* tableName, int rowID, string value);
 

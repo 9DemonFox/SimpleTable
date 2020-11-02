@@ -173,7 +173,7 @@ namespace SimpleTable {
 	{
 	public:
 		ISimpleTable() :rowNum_(0) {
-			columnInfo_ = new IColumnInfo(maxColumn_); // 设置列信息
+			columnInfo_ = *new IColumnInfo(maxColumn_); // 设置列信息
 		}
 
 		/// <summary>
@@ -195,7 +195,7 @@ namespace SimpleTable {
 
 		// col = "aaaaaaaa";
 		// 采取不关闭文件流的方法读取
-		virtual RowsWithInfo ISearchRows(const char* tablename, string col_name, string operater, string parameter, FileHandler& fileHandler) = 0; // 1成功 -1失败 
+		virtual RowsWithInfo ISearchRows(const char* tablename, string col_name, string operater, string parameter, bool useIndex = false) = 0; // 1成功 -1失败 
 
 		//  "aaaaaaaa" <= col <= "bbbbbbbb"
 		//virtual vector<IRow> ISearchRows(const char* tablename, string parameter1, string operater1, string col_name, string operater2, string parameter2) = 0;
@@ -220,11 +220,17 @@ namespace SimpleTable {
 		}
 
 		virtual int ICreateIndex(string columnName) = 0;
+
+		IColumnInfo getColumnInfo() { return columnInfo_; }
+
+		void setTableName(string tableName) {
+			tableName_ = tableName;
+		}
 		//virtual int IAddIndex() = 0; // 1 成功 -1 失败
 		//virtual int IDeleteIndex(const string indexName) = 0;// 1成功
 		//virtual int IGetAllIndex() = 0;
 	protected:
-		IColumnInfo* columnInfo_;
+		IColumnInfo columnInfo_;
 		vector <IRow> rows_;
 		int rowNum_;
 		string tableName_;

@@ -11,6 +11,7 @@
 #define p(x) cout<<#x<<":"<<x<<endl
 #include <mutex>
 #include "IndexAmin.h"
+#include <string>
 
 using namespace SimpleTable;
 using namespace stl_serialization;
@@ -78,7 +79,7 @@ TEST_CASE("TableAmin", "[single-file]") {
 	//REQUIRE(r.getColInfo().columnName_->getAttrOfIndex(2) == "col_0005");
 
 	// 测试查询某行
-	auto search_result = isimpletable->ISearchRows(DATA_FULL_PATH, "col_0003", "=", "testrow5", *fileHandler);
+	auto search_result = isimpletable->ISearchRows(DATA_FULL_PATH, "col_0003", "=", "testrow5");
 	auto search_rows = search_result.getRows()[0];
 	REQUIRE(search_rows.getAttrOfIndex(0) == "5");// 插入到第6行(从0开始)
 	REQUIRE(search_rows.getAttrOfIndex(3) == "testrow5");
@@ -94,14 +95,22 @@ TEST_CASE("IndexAmin", "[single-file]") {
 	string indexTestFile = "testIndexTestFile.db";
 	if (Utils::existsFile(indexTestFile))remove(indexTestFile.c_str());
 	ISimpleTable* isimpletable = new TableAmin();
+	isimpletable->setTableName(indexTestFile);
+	// 包含了默认的列名
 	REQUIRE(isimpletable->ICreateTable(indexTestFile.c_str()) == 1);// 创建成功
 	for (int k = 0; k < 1000; k++) {
 		IRow* r_temp = new IRow(k + 1, 8);
 		for (int i = 1; i < 8; i++) {
 			r_temp->setAttrOfIndex(i, Utils::getRandomNByteString(8));
 		}
-		isimpletable->IAppendOneRow(DATA_FULL_PATH, *r_temp);
+		r_temp->setAttrOfIndex(2, "row_" + Utils::num2NSizeString(4, k));
+		isimpletable->IAppendOneRow(indexTestFile.c_str(), *r_temp);
 	} // 创建1000行表
+	isimpletable->ICreateIndex("col_0002");
+	auto r = isimpletable->ISearchRows(indexTestFile.c_str(), "col_0002", "=", "row_0002", true);
+	cout << "\n\n";
+	r.getRows()[0].printData();
+
 }
 
 
@@ -116,7 +125,7 @@ TEST_CASE("IRow RowAmin", "[single-file]") {
 	IRow* r2 = new IRow(1, 100);
 	for (int i = 1; i < 100; i++) {
 		r2->setAttrOfIndex(i, Utils::getRandomNByteString(8));
-	}
+}
 #ifdef DEBUG
 	r2->printData();
 #endif // DEBUG

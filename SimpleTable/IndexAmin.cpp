@@ -35,10 +35,10 @@ int IndexRBTree::ICreateIndex(string tableName, string columnName, ISimpleTable*
 
 int IndexRBTree::ISearchRows(string tableName, string columnName, string op, string parameter, vector<int>* result)
 {
-	if (IHasIndex(tableName, columnName)) {
+	if (!IHasIndex(tableName, columnName)) {
 		return -1;
 	}
-	map_seri.unserialization(tableName.c_str());
+	map_seri.unserialization((tableName + "_" + columnName + ".bin").c_str());
 	if (op == "=") {
 		map<string, vector<int>>::iterator map_iter = map_seri.find(parameter);
 		if (map_iter == map_seri.end()) {
