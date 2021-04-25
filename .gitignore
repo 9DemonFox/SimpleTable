@@ -4,3 +4,14 @@
 /test/.vs/
 main/out/
 test/out/
+
+# boost编译产物
+/boost/*/ 
+/boost_*/
+
+
+# cmake编译产物
+**/CMakeFiles/
+**/*.cmake
+**/CMakeSettings.json
+**/CMakeCache.txt
