@@ -15,3 +15,4 @@ test/out/
 **/*.cmake
 **/CMakeSettings.json
 **/CMakeCache.txt
+**/MakeFile

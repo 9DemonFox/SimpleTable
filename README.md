@@ -1,236 +1,68 @@
-单元测试的实现：https://blog.csdn.net/wyyy2088511/article/details/80107131
+# SimpleTable
+实现一个简单的表
+# 说明
+1. 设计文档写的还行，代码不好
+# 所学知识
+1. catch.hpp对c++单元测试
+2. cmake的语法之类的
+3. 对于面向接口编程有了更深的理解
+4. 对于UML进行实体关系建模更熟练
 
-boost单元测试：https://blog.csdn.net/zhangxiao93/article/details/53169208
+# 4. 如何编译
 
-一个B+树的存储引擎：https://github.com/zcbenz/BPlusTree
+## 4.1 编译boost指定模块
 
-c++实现B+Tree
+- #### 解压
 
-https://blog.csdn.net/u010164190/article/details/72729824
+  tar -zxvf boos(tab)
 
-模板类的继承
+- #### boost编译生成到指定目录`boost/` ，生成 ./b2 编译指定模块 serialization
 
-设计一个类代表数据，这个类重载了>运算符，==运算符
+```
+./bootstrap.sh --with-libraries=serialization --prefix=../boost
+```
 
+- 编译
 
-
-# c++文件操作
-
-fgetc(fp)==EOF; 判断结尾
-
-fseek不返回-1到文件末尾不会返回-1
-fgets(buffer,n,file)读取n-1个字符，这个是很奇葩的...
-
-
-
-
-
-# 什么是catch.hpp
-
-http://blog.guorongfei.com/2016/08/22/cpp-unit-test-catch/http://blog.guorongfei.com/2016/08/22/cpp-unit-test-catch/
-
-单元测试：catch.hpp
-
-不用配置其它相关环境，只需要包含一个头文件
-
-这几乎是不需要解释就可以理解的读懂的代码。这种测试方式称为 BDD（Behaviour Driven Development），是最新的一种测试方式，它强调的是“行为”而不是“测试”，有兴趣可以看 看[这篇文章](https://dannorth.net/introducing-bdd/)。
-
-
-
-# cmake
-
-在cmake语法中，link_libraries和target_link_libraries是很重要的两个链接库的方式，虽然写法上很相似，但是功能上有很大区别：
-
-1，link_libraries用在add_executable之前，target_link_libraries用在add_executable之后
-
-2，link_libraries用来链接静态库，target_link_libraries用来链接导入库，即按照header file + .lib + .dll方式隐式调用动态库的.lib库
-
-> -lpthread 
->
-> in Cmake: target_link_libraries(test PRIVATE libtable pthread)
-
-https://github.com/danielScLima/BPlusTree#markdown-header
-
-```objectivec
-mermaid
-graph TD
-    id[带文本的矩形]
-    id4(带文本的圆角矩形)
-    id3>带文本的不对称的矩形]
-    id1{带文本的菱形}
-    id2((带文本的圆形))
+```
+ ./b2 install --with-serialization
 ```
 
 
 
-# BplusTree流程图
+## 4.2 cmake find_package
 
-```mermaid
-graph TD
-	a[tmp=树的第一个儿子节点]-->b[所有nextLeaf置空]
-	b-->c[根节点不为空则根节点入队列]
-	c-->d[是]
+### 4.2.1 设置find_package路径(坑巨多)
 
+- 报错如下
 
 ```
+  Unable to find the requested Boost libraries.
 
-```mermaid
-graph
-id99>updateSequenceOfLeafPointers 层次遍历树]
+  Unable to find the Boost header files.  Please set BOOST_ROOT to the root
+  directory containing Boost or BOOST_INCLUDEDIR to the directory containing
+  Boost's headers.
 ```
 
-# 2020年10月17日09:10:05
-
-1. 搞懂cmake
-
-2. 在windows下重组项目
-
-3. 将Table类、column类、row初稿完成
-
-4. 连接到远程Linux
-
-5. ```
-   参考的是visual studio的文档：
-   https://docs.microsoft.com/zh-cn/cpp/build/get-started-linux-cmake?view=vs-2019, 其中主要的步骤如下：
-   1.	虚拟机主机相互ping通，需要设置虚拟机网卡为NAT，如图4.2、4.3所示。
-   2.	安装openssh，sudo apt install openssh-server
-   3.	启动openssh, sudo service ssh start , 永久启动sudo systemctl enable ssh
-   4.	visual studio连接到Linux, 如图4.4 所示。
-   
-   ```
-
-   
-
-# CMakeLists
+- 目录如下
 
 ```
-cmake_minimum_required(VERSION 3.12)
-project(Program VERSION 1.0.0)
-
-include_directories(..)
-aux_source_directory(.. SOURCES)
-
-add_library(
-	libtable
-	${SOUCES}/ISimpleTable.h
-	${SOUCES}/ISimpleTable.cpp
-)
-
-add_executable(test test.cpp)
-
-target_link_libraries(test PRIVATE libtable)
+- boost
+  -include
+  -lib
+- tests
+  -CmakeLists.txt
 ```
 
-报错原因？
-
-修正后
+- 设置如下
 
 ```
-cmake_minimum_required(VERSION 3.12)
-project(Test VERSION 1.0.0)
-
-include_directories(../SimpleTable)
-aux_source_directory(../SimpleTable SOURCES)
-add_library(
-	libtable
-	${SOURCES} // 包含项目文件夹
-)
-
-add_executable(test test.cpp)
-
-target_link_libraries(test PRIVATE libtable)
-```
-
-不想要静态库，直接源文件
-
-![image-20201017091035142](reademe.assets/image-20201017091035142.png)
-
-
-
-在test中构造单元测试
-
-在main中写相关初稿
-
-多目录工程 https://blog.csdn.net/qq_36355662/article/details/80059432
-
-配置visulstudio链接到linux
-
-
-
-# 2020年10月18日08:55:29
-
-return char * will cause memory leak ?
-
-c++ NULL , 0 , nulpter
-
-string 是在namespace std中
-
-
-
-# 2020年10月28日22:19:54
-
-在解决fileHandler.getOneRow(file, buffer, rowNum * byteOfOneRow_, byteOfOneRow_) == 1时，fgets遇见\n, 长度到，文件尾部都会结束，fgets只会得到len-1个字符串。
-
-# 2020年10月31日10:06:04
-
-指针对象和值对象的区别
-我在一个IndexAmin中使用了指针对象，然后在一个函数中获取指针对象，结果函数结束，指针对象为空，所以还是要值对象。
-
-# C++ MUTEX
-
-（将mutex传入线程）https://blog.csdn.net/aixintianshideshouhu/article/details/94599830
-
-https://blog.csdn.net/li1615882553/article/details/85342101
-
-(单例模式的线程安全例子)https://blog.csdn.net/sinat_31135199/article/details/76635052?biz_id=102&utm_term=c++%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F%20mutex&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~sobaiduweb~default-1-76635052&spm=1018.2118.3001.4187
-
-# c++ 设计模式
-
-参考: https://zhuanlan.zhihu.com/p/94877789
-
-> 注意：类中的静态成员初始化必须在类外实现，且如果出现mutiple defination 必须要把初始化放到cpp文件中
-
-Table
-
-row
-
-columnInfo
-
-# C++ 继承模板类
-
-# C++ 序列化
-
-配置boost库 ： https://blog.csdn.net/reasonyuanrobot/article/details/106723854?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param
-
-boost序列化、反序列化
-
-序列化存储map https://www.codercto.com/a/19150.html
-
-```
-    private:
-        friend class boost::serialization::access;
-
-        template <class Archive>
-        void serialize(Archive &ar, const unsigned int version)
-        {
-            ar &boost::serialization::base_object<T>(*this);
-        }
+SET(BOOST_ROOT ../boost/) 
 ```
 
 ```
-It may not be immediately obvious how this one template serves for both saving data to an archive as well as loading data from the archive. The key is that the & operator is defined as << for output archives and as >> input archives. The "polymorphic" behavior of the & permits the same template to be used for both save and load operations. This is very convenient in that it saves a lot of typing and guarantees that the saving and loading of class data members are always in sync. This is the key to the whole serialization system.
-```
-
-
-
-# find_package(Boost COMPONENTS serialization REQUIRED)
-
-```
-cmake_minimum_required(VERSION 3.19)
-
-# Define project name
-project(boost_serialization)
-
+# 设置find_package查找目录
+SET(BOOST_ROOT ../boost/) 
 find_package(Boost COMPONENTS serialization REQUIRED)
 
 if(NOT Boost_FOUND)
@@ -239,61 +71,51 @@ endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
 
-add_executable(main main.cpp)
+add_executable(tests testmain.cpp test.cpp) # 将catch分离，加快编译
 
-link_directories("/usr/lib/x86_64-linux-gnu/")
-
-target_link_libraries(main ${Boost_LIBRARIES})
-
+target_link_libraries(tests PRIVATE libtable pthread ${Boost_LIBRARIES})
 ```
 
-https://frank909.blog.csdn.net/article/details/91813332?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.channel_param
+首先，cmake本身不提供任何搜索库的便捷方法，所有搜索库并给变量赋值的操作必须由cmake代码完成，比如FindXXX.cmake和XXXConfig.cmake。只不过，库的作者通常会提供这两个文件，以方便使用者调用。
+find_package采用两种模式搜索库：
+
+Module模式：搜索CMAKE_MODULE_PATH指定路径下的FindXXX.cmake文件，执行该文件从而找到XXX库。其中，具体查找库并给XXX_INCLUDE_DIRS和XXX_LIBRARIES两个变量赋值的操作由FindXXX.cmake模块完成（先搜索当前项目里面的Module文件夹里面提供的FindXXX.cmake，然后再搜索系统路径/usr/local/share/cmake-x.y/Modules/FindXXX.cmake）
+Config模式：搜索XXX_DIR指定路径下的XXXConfig.cmake文件，执行该文件从而找到XXX库。其中具体查找库并给XXX_INCLUDE_DIRS和XXX_LIBRARIES两个变量赋值的操作由XXXConfig.cmake模块完成。
+
+对于可能没有***.cmake和***Config.cmake的库文件，可以直接找到其头文件和库文件所在文件夹，直接进行路径赋值：
+
+```
+SET(LAPACK_DIR /usr/local/lib/) 
+SET(LAPACK_INCLUDE_DIRS /usr/local/include) 
+SET(LAPACK_LIBRARIES /usr/local/lib)
+```
+
+### 4.3.2 需要包含具体的模块
 
 
 
-# Steps
+## 4.3 cmake include_directories
 
-## install cmake&&boost realted tools
+- 
+  用来提供找头文件路径的
 
-sudo apt-get install cmake libblkid-dev e2fslibs-dev libboost-all-dev libaudit-dev
+打个比方，我现在想要#include"cv.h",但是这个cv.h的路径是/usr/local/include/opencv,那么我总不能在主函数头前写
+#include “/usr/local/include/opencv/cv.h”吧，这个时候就用到include_directories了，它提供了一个搜索头文件暂时的根目录，即你可以在cmakelists中写上`include_directories(/usr/local/include)`来让库文件搜索以/usr/local/include为基础，即在main函数前写上#include “opencv/cv.h"即可
 
-# cmake docs
+- 区别
 
-## for mutex
+`include_directories(x/y)` affects directory scope. All targets in this CMakeList, as well as those in all subdirectories added after the point of its call, will have the path `x/y` added to their include path.
 
-add_definitions(-std=c++11)
+`target_include_directories(t x/y)` has target scope—it adds `x/y` to the include path for target `t`.
 
-## for muti-main()
+You want the former one if all of your targets use the include directories in question. You want the latter one if the path is specific to a target, or if you want finer control of the path's visibility. The latter comes from the fact that `target_include_directories()` supports the `PRIVATE`, `PUBLIC`, and `INTERFACE` qualifiers.
 
-As the unit test has a main,we must add
+## 4.4 add_library
 
-> list(REMOVE_ITEM SIMPLETABLE_SRCS ${PROJECT_SOURCE_DIR}/SimpleTable.cpp)
+## 4.5 CMAKE 指定输出路径
 
-# config the chinese support in ubuntu seems wasting time
+https://blog.csdn.net/nan_feng_yu/article/details/80808773
 
-# c++ switch
-		// switch 只能是常量表达式 int char ...
+# 5. wsl下测试
 
-# c++ 在类的定义中，只能层层调用
-
-class A
-
-{
-
-class B
-
-}
-
-class B
-
-{
-
-​	class A
-
-}
-
-A->B
-
-B->A 不行
-
-交叉引用时，放在同一个命名空间
+![image-20210425154222707](README.assets/image-20210425154222707.png)
